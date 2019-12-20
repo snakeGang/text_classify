@@ -9,7 +9,7 @@ def sililar_fun(target_content,tmp_list):
     doc_test = target_content
     all_doc = []
     ex_line = tmp_list[0]
-    ex_line = (ex_line[0],ex_line[1],ex_line[2],ex_line[3],"这是一条混淆文本，用来防止被匹配内容全部相似而导致相似度全部为零的情况",ex_line[5])
+    ex_line = (ex_line[0],ex_line[1],ex_line[2],ex_line[3],"测试内容",ex_line[5])
     tmp_list.append(ex_line)
     for i in range(tmp_list.__len__()):
         all_doc.append(tmp_list[i][4])
@@ -51,11 +51,10 @@ def sililar_fun(target_content,tmp_list):
     return tuple((tmp_list[most_hit][0],tmp_list[most_hit][1],tmp_list[most_hit][2],tmp_list[most_hit][3],tmp_list[most_hit][4],tmp_list[most_hit][5],str(most_score),target_content))
 
 
-
-
-
-path = 'E://新建文件夹/提取数据/云MAS投诉/201909/201909.xls'
-target_path = 'E://新建文件夹/提取数据/云MAS投诉/19年云MAS投诉/云MAS各省9月百万投诉比.xlsx'
+path = r'E:\新建文件夹\提取数据\云MAS投诉\201901\201901.xls'
+target_path = 'E://新建文件夹/提取数据/云MAS投诉/19年云MAS投诉/云MAS各省1月百万投诉比.xlsx'
+sheet_name1 = '1月云MAS全部投诉'
+save_path = 'E://新建文件夹/提取数据/云MAS投诉/201901/201901相似度匹配结果.xls'
 
 workbook1 = xlrd.open_workbook(path)
 
@@ -80,12 +79,12 @@ for i in range(1,row_num1):
 
 
 workbook2 = xlrd.open_workbook(target_path)
-sheet2 = workbook2.sheet_by_name('9月云MAS全部投诉')
+sheet2 = workbook2.sheet_by_name(sheet_name=sheet_name1)
 row_num2 = sheet2.nrows
 col_num2 = sheet2.ncols
 target_dic = {}
 for i in range(row_num2):
-    target_dic[sheet2.cell_value(i,0)] = sheet2.cell_value(i,9)
+    target_dic[sheet2.cell_value(i,0)] = sheet2.cell_value(i,7)
 
 result_list1 = []
 result_list2 = []
@@ -102,15 +101,38 @@ for i in range(repeat_dic.keys().__len__()):
         result = sililar_fun(target_content,tmp_list)
         if result is not None:
             result_list1.append(result)
-
     else:
+        item_code = item[0]
         result_list2.append(tuple((item[1][0][0],item[1][0][1],item[1][0][2],item[1][0][3],item[1][0][4],item[1][0][5],target_dic.get(item_code))))
 
-
+print(result_list1.__len__())
+print(len(result_list2))
 new_workbook = xlwt.Workbook(encoding='utf-8')
 new_sheet = new_workbook.add_sheet('结果')
-for i in result_list2:
-    print(i)
+fields = ['投诉编号','ecid','ec名称','投诉号码','发送内容','模板id','相似度','投诉内容']
+for field in range(0, len(fields)):
+    new_sheet.write(0, field, fields[field])
+rowIndex = 1
+
+for item in result_list1:
+    new_sheet.write(rowIndex, 0, item[0])
+    new_sheet.write(rowIndex, 1, item[1])
+    new_sheet.write(rowIndex, 2, item[2])
+    new_sheet.write(rowIndex, 3, item[3])
+    new_sheet.write(rowIndex, 4, item[4])
+    new_sheet.write(rowIndex, 5, item[5])
+    new_sheet.write(rowIndex, 6, item[6])
+    new_sheet.write(rowIndex, 7, item[7])
+    rowIndex += 1
 
 
-
+for item in result_list2:
+    new_sheet.write(rowIndex, 0, item[0])
+    new_sheet.write(rowIndex, 1, item[1])
+    new_sheet.write(rowIndex, 2, item[2])
+    new_sheet.write(rowIndex, 3, item[3])
+    new_sheet.write(rowIndex, 4, item[4])
+    new_sheet.write(rowIndex, 5, item[5])
+    new_sheet.write(rowIndex, 7, item[6])
+    rowIndex += 1
+new_workbook.save(save_path)

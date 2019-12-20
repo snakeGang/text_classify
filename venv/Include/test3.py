@@ -1,34 +1,55 @@
 # -!- coding: utf-8 -!
 import xlrd,xlwt
+import collections
 
+# path1 = r'E:\PycharmProjects\text_classify\venv\Include\two_month.xlsx'
+path2 = r'E:\新建文件夹\提取数据\云MAS投诉\find_real_send.xlsx'
 
-path1 = r'E:\PycharmProjects\text_classify\venv\Include\two_month.xlsx'
-path2 = r'E:\新建文件夹\提取数据\云MAS投诉\201910\201910V2_1.xlsx'
-
-workbook1 = xlrd.open_workbook(path1)
 workbook2 = xlrd.open_workbook(path2)
-sheet1 = workbook1.sheet_by_index(0)
 sheet2 = workbook2.sheet_by_index(0)
+row_num = sheet2.nrows
 
-row_num1 = sheet1.nrows
-row_num2 = sheet2.nrows
+print("开始读取")
+print(row_num)
+ec_name_list = []
 
-item_dict = {}
-for i in range(0,row_num1):
-    item_dict[sheet1.cell_value(i,0)] = i
 
-newbook = xlwt.Workbook()
-sheet3 = newbook.add_sheet("aa")
+# with open('find_real_send.txt','w') as f:
+#     for i in range(1, row_num):
+#         complaint_id = sheet2.cell_value(i, 0)
+#         ecid = sheet2.cell_value(i, 1)
+#         ec_name = sheet2.cell_value(i, 2)
+#         mobile = sheet2.cell_value(i, 3)
+#         content = sheet2.cell_value(i, 4)
+#         templateid = sheet2.cell_value(i, 5)
+#         if templateid == '':
+#             templateid = '普通短信'
+#         score = sheet2.cell_value(i, 6)
+#         complaint_content = sheet2.cell_value(i, 7)
+#         target_list = []
+#         target_list.append(complaint_id)
+#         target_list.append(ecid)
+#         target_list.append(ec_name)
+#         target_list.append(content)
+#         target_list.append(templateid)
+#         for j in target_list:
+#             f.write(j)
+#             f.write('|')
+#         f.write('\n')
+#     f.flush()
 
-cm_list = []
-for i in range(1,row_num2):
-    complaint_id = sheet2.cell_value(i,0)
-    ecid = item_dict[complaint_id]
-    sheet3.write(i,0,sheet2.cell_value(i,0))
-    sheet3.write(i, 1, sheet1.cell_value(item_dict[complaint_id],1))
-    sheet3.write(i, 2, sheet2.cell_value(i, 2))
-    sheet3.write(i, 3, sheet2.cell_value(i, 3))
-    sheet3.write(i, 4, sheet2.cell_value(i, 4))
-    sheet3.write(i, 5, sheet2.cell_value(i, 5))
 
-newbook.save("测试xls.xls")
+for i in range(1,row_num):
+    ec_name = sheet2.cell_value(i,2)
+    ec_name_list.append(ec_name)
+
+c = collections.Counter(ec_name_list)
+
+with open('count.txt','w') as f:
+    for i in sorted(c,key=c.__getitem__,reverse=True):
+        f.write(i)
+        f.write('\t')
+        f.write(str(c[i]))
+        f.write('\n')
+
+    f.flush()
